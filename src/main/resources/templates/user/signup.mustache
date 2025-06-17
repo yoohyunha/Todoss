@@ -1,0 +1,48 @@
+{{>layouts/header}}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card-modern p-5">
+                <div class="text-center mb-4">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px;">
+                        <i class="bi bi-person-plus text-white" style="font-size:2.5rem;"></i>
+                    </div>
+                    <h2 class="fw-bold">회원가입</h2>
+                    <p class="text-muted">새 계정을 만들어 시작하세요</p>
+                </div>
+
+                <form method="post" action="/signup">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="username" placeholder="아이디" required>
+                        <label>아이디</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" name="password" placeholder="비밀번호" required>
+                        <label>비밀번호</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" name="email" placeholder="이메일">
+                        <label>이메일</label>
+                    </div>
+                    <div class="form-floating mb-4">
+                        <input type="text" class="form-control" name="nickname" placeholder="닉네임">
+                        <label>닉네임</label>
+                    </div>
+                    <button class="btn btn-gradient-success w-100 py-3 fw-medium" type="submit">
+                        <i class="bi bi-check-circle me-2"></i>회원가입
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="text-muted mb-3">이미 계정이 있으신가요?</p>
+                    <a href="/login" class="btn btn-gradient-primary w-100 py-3 fw-medium">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>로그인
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{>layouts/footer}}

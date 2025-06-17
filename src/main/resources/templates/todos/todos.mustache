@@ -1,0 +1,219 @@
+{{>layouts/header}}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <button onclick="location.href='/todos?date={{prevMonth}}'" class="btn btn-secondary-modern btn-sm me-3">
+            <i class="bi bi-chevron-left"></i>
+            </button>
+            <h2 class="fw-bold mb-0 text-primary-modern">{{currentYear}}년 {{currentMonth}}월</h2>
+            <button onclick="location.href='/todos?date={{nextMonth}}'" class="btn btn-secondary-modern btn-sm ms-3">
+            <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+        <a href="/friends" class="btn btn-primary-modern" title="친구 관리">
+            <i class="bi bi-person-plus me-1"></i>친구 관리
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- 오늘 할 일 -->
+        <div class="col-lg-5">
+            <div class="card-modern p-4" style="min-height:400px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0 d-flex align-items-center text-primary-modern">
+                        <i class="bi bi-calendar-check me-2"></i>오늘 할 일
+                    </h4>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="progress-circle" style="--progress: calc({{doneCount}} / {{totalCount}} * 360deg);">
+                            <span class="progress-text">{{doneCount}}/{{totalCount}}</span>
+                        </div>
+                        <button class="btn btn-primary-modern btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addTodoModal">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <h5 class="fw-bold text-secondary-modern">{{selectedDate}}</h5>
+                </div>
+
+                <div class="todo-list">
+                    {{#todos}}
+                        <div class="todo-item d-flex align-items-center">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="checkbox"
+                                       {{#completed}}checked{{/completed}}
+                                       onclick="toggleTodo({{id}}, event)">
+                            </div>
+                            <span class="flex-grow-1 {{#completed}}text-decoration-line-through text-muted{{/completed}}">
+                                {{content}}
+                            </span>
+                            {{#completed}}
+                                <i class="bi bi-check-circle-fill" style="color: var(--success-color);"></i>
+                            {{/completed}}
+                        </div>
+                    {{/todos}}
+                    {{^todos}}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-clipboard-x display-4 mb-3" style="color: var(--accent-color);"></i>
+                            <p>아직 할 일이 없습니다.<br>새로운 할 일을 추가해보세요!</p>
+                        </div>
+                    {{/todos}}
+                </div>
+            </div>
+        </div>
+
+        <!-- 캘린더 -->
+        <div class="col-lg-4">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3 text-center text-primary-modern">
+                <i class="bi bi-calendar3 me-2"></i>캘린더
+            </h5>
+        <table class="table table-borderless text-center">
+            <thead>
+            <tr class="text-muted fw-medium">
+                <th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th>
+            </tr>
+            </thead>
+        <tbody>
+            {{#calendarRows}}
+            <tr>
+                {{#this}}
+                    <td>
+                    <div class="calendar-day mx-auto
+                                        {{#today}}today{{/today}}
+                        {{#isSelected}}selected{{/isSelected}}"
+                        {{#date}}onclick="window.location.href='/todos?date={{date}}'"{{/date}}>
+                        {{day}}
+                </div>
+                    </td>
+                {{/this}}
+                </tr>
+            {{/calendarRows}}
+            </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 친구 목록 -->
+    <div class="col-lg-3">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3 text-primary-modern">
+                <i class="bi bi-people me-2"></i>친구 목록
+            </h5>
+
+            {{#friends}}
+                <div class="friend-card">
+                    <form method="get" action="/todos/friend" class="m-0">
+                        <input type="hidden" name="userId" value="{{id}}">
+                        <button class="btn w-100 text-start p-0 border-0 bg-transparent d-flex align-items-center friend-btn"
+                                type="submit"
+                                onclick="event.stopPropagation();">
+                            <div class="bg-primary-modern rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
+                                <i class="bi bi-person-fill text-white"></i>
+                            </div>
+                            <span class="fw-medium text-primary-modern">{{nickname}}</span>
+                        </button>
+                    </form>
+                </div>
+            {{/friends}}
+
+            {{^friends}}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-person-plus display-6 mb-2" style="color: var(--accent-color);"></i>
+                    <p class="mb-0">친구를 추가해보세요!</p>
+                </div>
+            {{/friends}}
+
+            <!-- 친구 요청 -->
+            {{#pendingRequests}}
+                <div class="friend-card" style="border-color: var(--warning-color);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-medium text-primary-modern">{{fromUser.nickname}}</span>
+                        <div class="btn-group btn-group-sm">
+                            <form method="post" action="/friends/accept" class="d-inline">
+                                <input type="hidden" name="requestId" value="{{id}}">
+                                <button class="btn btn-success-modern btn-sm"
+                                        type="submit"
+                                        onclick="event.stopPropagation();">
+                                    <i class="bi bi-check"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="/friends/reject" class="d-inline">
+                                <input type="hidden" name="requestId" value="{{id}}">
+                                <button class="btn btn-sm"
+                                        style="background: var(--danger-color); color: white; border: none;"
+                                        type="submit"
+                                        onclick="event.stopPropagation();">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {{/pendingRequests}}
+        </div>
+    </div>
+</div>
+
+<!-- 할 일 추가 모달 -->
+<div class="modal fade" id="addTodoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content border-0 shadow-lg" action="/todos/create" method="post" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary-modern">
+                    <i class="bi bi-plus-circle me-2"></i>새 할 일 추가
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="form-floating">
+                    <input type="text" class="form-control" name="content" id="todoContent" placeholder="할 일을 입력하세요" required>
+                    <label for="todoContent">할 일을 입력하세요</label>
+                </div>
+                <input type="hidden" name="date" value="{{selectedDate}}">
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary-modern" data-bs-dismiss="modal">취소</button>
+                <button type="submit" class="btn btn-primary-modern">
+                    <i class="bi bi-plus me-1"></i>추가
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleTodo(id, event) {
+        event.stopPropagation(); // 이벤트 전파 방지
+
+        const todoItem = event.target.closest('.todo-item');
+        todoItem.style.opacity = '0.5';
+
+        fetch('/api/todos/' + id, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ completed: event.target.checked })
+        }).then(() => {
+            setTimeout(() => location.reload(), 300);
+        }).catch(() => {
+            todoItem.style.opacity = '1';
+            event.target.checked = !event.target.checked;
+        });
+    }
+
+    // 친구 버튼 클릭 이벤트 처리
+    document.addEventListener('DOMContentLoaded', function() {
+        const friendButtons = document.querySelectorAll('.friend-btn');
+        friendButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // 폼 제출은 자동으로 처리됨
+            });
+        });
+    });
+</script>
+
+
+{{>layouts/footer}}

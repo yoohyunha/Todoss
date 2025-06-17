@@ -1,0 +1,239 @@
+{{>layouts/header}}
+
+<div class="container-fluid px-4 py-4">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center flex-grow-1 justify-content-center">
+            <div class="bg-primary-modern rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                <i class="bi bi-person-fill text-white"></i>
+            </div>
+            <h3 class="fw-bold mb-0 text-primary-modern">{{friend.nickname}}님의 투두리스트</h3>
+        </div>
+        <a href="/todos" class="btn btn-secondary-modern">
+            <i class="bi bi-arrow-left me-2"></i>내 투두리스트로 돌아가기
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- 오늘 할 일 -->
+        <div class="col-lg-6">
+            <div class="card-modern p-4" style="min-height:400px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0 d-flex align-items-center text-primary-modern">
+                        <i class="bi bi-calendar-check me-2"></i>오늘 할 일
+                    </h4>
+                    <div class="progress-circle" style="--progress: calc({{doneCount}} / {{totalCount}} * 360deg);">
+                        <span class="progress-text">{{doneCount}}/{{totalCount}}</span>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <h5 class="fw-bold text-secondary-modern">{{selectedDate}}</h5>
+                </div>
+
+                <div class="todo-list">
+                    {{#todos}}
+                        <div class="todo-item d-flex align-items-center">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="checkbox" disabled {{#completed}}checked{{/completed}}>
+                            </div>
+                            <span class="flex-grow-1 {{#completed}}text-decoration-line-through text-muted{{/completed}}">
+                                {{content}}
+                            </span>
+                            {{#completed}}
+                                <i class="bi bi-check-circle-fill" style="color: var(--success-color);"></i>
+                            {{/completed}}
+                        </div>
+                    {{/todos}}
+                    {{^todos}}
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-clipboard-x display-4 mb-3" style="color: var(--accent-color);"></i>
+                            <p class="mb-0">{{friend.nickname}}님의 할 일이 없습니다.</p>
+                        </div>
+                    {{/todos}}
+                </div>
+            </div>
+        </div>
+
+        <!-- 캘린더 -->
+        <div class="col-lg-6">
+        <div class="card-modern p-4">
+            <h5 class="fw-bold mb-3 text-center text-primary-modern">
+                <i class="bi bi-calendar3 me-2"></i>캘린더
+            </h5>
+        <table class="table table-borderless text-center">
+            <thead>
+            <tr class="text-muted fw-medium">
+                <th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th>
+            </tr>
+            </thead>
+        <tbody>
+            {{#calendarRows}}
+            <tr>
+                {{#this}}
+                    <td>
+                    <div class="calendar-day mx-auto
+                                        {{#today}}today{{/today}}
+                        {{#isSelected}}selected{{/isSelected}}"
+                        {{#date}}onclick="window.location.href='/todos/friend?userId={{friend.id}}&date={{date}}'"{{/date}}>
+                        {{day}}
+                </div>
+                    </td>
+                {{/this}}
+                </tr>
+            {{/calendarRows}}
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 친구 정보 카드 -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card-modern p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary-modern rounded-circle d-flex align-items-center justify-content-center me-4" style="width:80px;height:80px;">
+                            <i class="bi bi-person-fill text-white" style="font-size:2rem;"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-primary-modern mb-1">{{friend.nickname}}</h4>
+                            <p class="text-muted mb-2">@{{friend.username}}</p>
+                            <div class="d-flex gap-3">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-calendar-check me-1"></i>
+                                        총 {{totalCount}}개 할 일
+                                    </span>
+                                <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-check-circle me-1"></i>
+                                    {{doneCount}}개 완료
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-primary-modern" onclick="sendEncouragement()">
+                            <i class="bi bi-heart me-2"></i>응원하기
+                        </button>
+                        <a href="/todos" class="btn btn-secondary-modern">
+                            <i class="bi bi-arrow-left me-2"></i>내 투두리스트
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    /* 친구 투두리스트 전용 스타일 */
+    .todo-item {
+        background: #fafafa;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 8px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+        opacity: 0.9; /* 친구 할 일은 약간 투명하게 */
+    }
+
+    .todo-item:hover {
+        background: white;
+        border-color: var(--light-gray);
+        opacity: 1;
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 8px 12px;
+    }
+
+    .progress-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) var(--progress, 0deg), var(--light-gray) var(--progress, 0deg));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .progress-circle::before {
+        content: '';
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        position: absolute;
+    }
+
+    .progress-text {
+        position: relative;
+        z-index: 1;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--primary-color);
+    }
+
+    .calendar-day {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--secondary-color);
+    }
+
+    .calendar-day:hover {
+        background: var(--light-gray);
+        color: var(--primary-color);
+    }
+
+    .calendar-day.today {
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+    }
+
+    .calendar-day.selected {
+        border: 2px solid var(--primary-color);
+        background: rgba(45, 55, 72, 0.1);
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .mb-4 .d-flex {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .col-md-4.text-md-end {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .d-flex.flex-column {
+            flex-direction: row;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    function sendEncouragement() {
+        // 응원 메시지 기능 (추후 구현)
+        alert('{{friend.nickname}}님에게 응원 메시지를 보냈습니다! 💪');
+    }
+</script>
+
+{{>layouts/footer}}

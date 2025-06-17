@@ -1,0 +1,121 @@
+{{>layouts/header}}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-modern p-5">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-modern rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:80px;height:80px;">
+                        <i class="bi bi-person-plus text-white" style="font-size:2.5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary-modern mb-2">친구 찾기</h3>
+                    <p class="text-muted">아이디나 닉네임으로 새로운 친구를 찾아보세요</p>
+                </div>
+
+                <form method="post" action="/friends/search" class="mb-4">
+                    <div class="input-group input-group-lg shadow-sm">
+                        <span class="input-group-text bg-light border-end-0" style="border-color: var(--light-gray);">
+                            <i class="bi bi-search text-secondary-modern"></i>
+                        </span>
+                        <input type="text"
+                               name="keyword"
+                               class="form-control border-start-0"
+                               placeholder="아이디 또는 닉네임으로 검색하세요"
+                               style="border-color: var(--light-gray);">
+                        <button class="btn btn-primary-modern px-4" type="submit">
+                            <i class="bi bi-search me-2"></i>검색
+                        </button>
+                    </div>
+                </form>
+
+                <div class="search-results">
+                    {{#results}}
+                        <div class="friend-card d-flex justify-content-between align-items-center p-4 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-modern rounded-circle d-flex align-items-center justify-content-center me-3" style="width:50px;height:50px;">
+                                    <i class="bi bi-person-fill text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-primary-modern">{{nickname}}</h6>
+                                    <small class="text-muted">@{{username}}</small>
+                                </div>
+                            </div>
+                            <form method="post" action="/friends/request" class="m-0">
+                                <input type="hidden" name="toUserId" value="{{id}}">
+                                <button class="btn btn-success-modern">
+                                    <i class="bi bi-person-plus me-2"></i>친구 요청
+                                </button>
+                            </form>
+                        </div>
+                    {{/results}}
+
+                    {{^results}}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="bi bi-search display-1 text-muted" style="color: var(--accent-color) !important;"></i>
+                            </div>
+                            <h5 class="fw-bold text-secondary-modern mb-2">검색 결과가 없습니다</h5>
+                            <p class="text-muted mb-4">다른 키워드로 검색해보세요</p>
+                            <div class="bg-light rounded-3 p-4" style="border: 1px solid var(--light-gray);">
+                                <h6 class="fw-bold text-primary-modern mb-2">
+                                    <i class="bi bi-lightbulb me-2"></i>검색 팁
+                                </h6>
+                                <ul class="list-unstyled mb-0 text-start text-muted">
+                                    <li class="mb-1">• 정확한 아이디나 닉네임을 입력해보세요</li>
+                                    <li class="mb-1">• 대소문자를 확인해보세요</li>
+                                    <li>• 띄어쓰기나 특수문자를 확인해보세요</li>
+                                </ul>
+                            </div>
+                        </div>
+                    {{/results}}
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/todos" class="btn btn-secondary-modern">
+                        <i class="bi bi-arrow-left me-2"></i>투두리스트로 돌아가기
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 추가 스타일링 */
+    .search-results .friend-card {
+        transition: all 0.3s ease;
+        border: 1px solid var(--light-gray);
+    }
+
+    .search-results .friend-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(45, 55, 72, 0.1);
+    }
+
+    .input-group-lg .form-control {
+        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .input-group-lg .input-group-text {
+        padding: 0.75rem 1rem;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    @media (max-width: 768px) {
+        .friend-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .friend-card .d-flex:first-child {
+            justify-content: center;
+        }
+    }
+</style>
+
+{{>layouts/footer}}

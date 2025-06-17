@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>MyTodos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2d3748;
+            --secondary-color: #4a5568;
+            --accent-color: #718096;
+            --light-gray: #e2e8f0;
+            --dark-gray: #1a202c;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --danger-color: #e53e3e;
+            --card-shadow: 0 4px 20px rgba(45, 55, 72, 0.1);
+            --hover-shadow: 0 8px 30px rgba(45, 55, 72, 0.15);
+        }
+
+        body {
+            background: #f7fafc;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            color: var(--primary-color);
+        }
+
+        .navbar {
+            background: rgba(255,255,255,0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .card-modern {
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .btn-primary-modern {
+            background: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .btn-primary-modern:hover {
+            background: var(--dark-gray);
+            border-color: var(--dark-gray);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45, 55, 72, 0.3);
+            color: white;
+        }
+
+        .btn-secondary-modern {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--secondary-color);
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        .btn-secondary-modern:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-success-modern {
+            background: var(--success-color);
+            border: 1px solid var(--success-color);
+            color: white;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        .btn-success-modern:hover {
+            background: #2f855a;
+            border-color: #2f855a;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .todo-item {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .todo-item:hover {
+            background: white;
+            border-color: var(--light-gray);
+            transform: translateX(4px);
+        }
+
+        .calendar-day {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .calendar-day:hover {
+            background: var(--light-gray);
+            color: var(--primary-color);
+        }
+
+        .calendar-day.today {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.selected {
+            border: 2px solid var(--primary-color);
+            background: rgba(45, 55, 72, 0.1);
+            color: var(--primary-color);
+        }
+
+        .friend-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            border: 1px solid var(--light-gray);
+            transition: all 0.3s ease;
+        }
+
+        .friend-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45, 55, 72, 0.1);
+        }
+
+        .progress-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary-color) 0deg, var(--primary-color) var(--progress, 0deg), var(--light-gray) var(--progress, 0deg));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .progress-circle::before {
+            content: '';
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+
+        .progress-text {
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .text-primary-modern {
+            color: var(--primary-color) !important;
+        }
+
+        .text-secondary-modern {
+            color: var(--secondary-color) !important;
+        }
+
+        .bg-primary-modern {
+            background-color: var(--primary-color) !important;
+        }
+
+        .border-primary-modern {
+            border-color: var(--primary-color) !important;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(45, 55, 72, 0.1);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .nav-link {
+            color: var(--secondary-color) !important;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light shadow-sm mb-4 sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-check2-circle me-2"></i>MyTodos
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/todos" class="nav-link">
+                <i class="bi bi-list-task me-1"></i>투두리스트
+            </a>
+            {{#user}}
+                <a href="/mypage" class="nav-link">
+                    <i class="bi bi-person-circle me-1"></i>마이페이지
+                </a>
+                <a href="/logout" class="btn btn-secondary-modern btn-sm">로그아웃</a>
+            {{/user}}
+            {{^user}}
+                <a href="/signup" class="btn btn-success-modern btn-sm">회원가입</a>
+                <a href="/login" class="btn btn-primary-modern btn-sm">로그인</a>
+            {{/user}}
+        </div>
+    </div>
+</nav>
