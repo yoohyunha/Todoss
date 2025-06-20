@@ -21,9 +21,13 @@ public class FriendService {
         User from = userRepository.findById(fromId).orElse(null);
         User to = userRepository.findById(toId).orElse(null);
         if (from == null || to == null) return false;
+
         // 이미 요청이 있거나 친구라면 중복 방지
         if (friendRequestRepository.findByFromUserOrToUserAndStatus(from, to, FriendRequest.Status.ACCEPTED).size() > 0)
             return false;
+        if (friendRequestRepository.findByFromUserOrToUserAndStatus(from, to, FriendRequest.Status.PENDING).size() > 0)
+            return false;
+
         FriendRequest req = new FriendRequest(null, from, to, FriendRequest.Status.PENDING);
         friendRequestRepository.save(req);
         return true;
@@ -45,6 +49,26 @@ public class FriendService {
         return true;
     }
 
+    // 친구 삭제 기능 추가
+    public boolean removeFriend(Long userId, Long friendId) {
+        User user = userRepository.findById(userId).orElse(null);
+        User friend = userRepository.findById(friendId).orElse(null);
+        if (user == null || friend == null) return false;
+
+        // 양방향으로 친구 관계 찾기
+        List<FriendRequest> friendRequests = friendRequestRepository
+                .findByFromUserOrToUserAndStatus(user, friend, FriendRequest.Status.ACCEPTED);
+
+        for (FriendRequest req : friendRequests) {
+            if ((req.getFromUser().getId().equals(userId) && req.getToUser().getId().equals(friendId)) ||
+                    (req.getFromUser().getId().equals(friendId) && req.getToUser().getId().equals(userId))) {
+                friendRequestRepository.delete(req);
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<User> getFriends(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return List.of();
@@ -61,25 +85,10 @@ public class FriendService {
         return friendRequestRepository.findByToUserAndStatus(user, FriendRequest.Status.PENDING);
     }
 
-//    public boolean isFriend(Long userId, Long otherId) {
-//        List<FriendRequest> accepted = friendRequestRepository
-//                .findByFromUserOrToUserAndStatus(
-//                        userRepository.findById(userId).orElse(null),
-//                        userRepository.findById(otherId).orElse(null),
-//                        FriendRequest.Status.ACCEPTED
-//                );
-//        return accepted.stream().anyMatch(fr ->
-//                (fr.getFromUser().getId().equals(userId) && fr.getToUser().getId().equals(otherId)) ||
-//                        (fr.getFromUser().getId().equals(otherId) && fr.getToUser().getId().equals(userId))
-//        );
-//    }
-
     public boolean isFriend(Long userId, Long otherId) {
         return friendRequestRepository.existsByFromUserIdAndToUserIdAndStatus(
                 userId, otherId, FriendRequest.Status.ACCEPTED)
                 || friendRequestRepository.existsByFromUserIdAndToUserIdAndStatus(
                 otherId, userId, FriendRequest.Status.ACCEPTED);
     }
-
-
 }

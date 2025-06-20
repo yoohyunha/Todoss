@@ -41,6 +41,15 @@ public class FriendApiController {
         return ok ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
     }
 
+    // 친구 삭제 API 추가
+    @DeleteMapping("/{friendId}")
+    public ResponseEntity<?> removeFriend(@PathVariable Long friendId, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        boolean ok = friendService.removeFriend(user.getId(), friendId);
+        return ok ? ResponseEntity.noContent().build() : ResponseEntity.badRequest().build();
+    }
+
     @GetMapping
     public List<User> friends(HttpSession session) {
         User user = (User) session.getAttribute("user");

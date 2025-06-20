@@ -2,9 +2,11 @@ package com.dongyang.hyun.controller;
 
 import com.dongyang.hyun.dto.TodoDto;
 import com.dongyang.hyun.entity.FriendRequest;
+import com.dongyang.hyun.entity.SharedTodoList;
 import com.dongyang.hyun.entity.Todo;
 import com.dongyang.hyun.entity.User;
 import com.dongyang.hyun.service.FriendService;
+import com.dongyang.hyun.service.SharedTodoService;
 import com.dongyang.hyun.service.TodoService;
 import com.dongyang.hyun.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -27,11 +29,13 @@ public class TodoViewController {
     private final TodoService todoService;
     private final FriendService friendService;
     private final UserService userService;
+    private final SharedTodoService sharedTodoService;
 
-    public TodoViewController(TodoService todoService, FriendService friendService, UserService userService) {
+    public TodoViewController(TodoService todoService, FriendService friendService, UserService userService, SharedTodoService sharedTodoService) {
         this.todoService = todoService;
         this.friendService = friendService;
         this.userService = userService;
+        this.sharedTodoService = sharedTodoService;
     }
 
     @PostMapping("/todos/create")
@@ -53,11 +57,16 @@ public class TodoViewController {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/login";
         if (date == null) date = LocalDate.now();
+
+        // 기존 개인 투두 리스트
         List<Todo> todos = todoService.findByUserIdAndDate(user.getId(), date);
 
         // 친구 목록, 친구 요청 추가
         List<User> friends = friendService.getFriends(user.getId());
         List<FriendRequest> pendingRequests = friendService.getPendingRequests(user.getId());
+
+        // 공유 투두 리스트 추가
+        List<SharedTodoList> sharedLists = sharedTodoService.getSharedLists(user.getId());
 
         model.addAttribute("todos", todos);
         model.addAttribute("doneCount", todos.stream().filter(Todo::isCompleted).count());
@@ -70,12 +79,13 @@ public class TodoViewController {
         model.addAttribute("nextMonth", date.plusMonths(1).withDayOfMonth(1));
         model.addAttribute("calendarRows", generateCalendarRows(date, date));
 
-        // 추가!
         model.addAttribute("friends", friends);
         model.addAttribute("pendingRequests", pendingRequests);
+        model.addAttribute("sharedLists", sharedLists); // 공유 리스트 추가
         model.addAttribute("user", user);
         return "todos/todos";
     }
+
     @GetMapping("/todos/friend")
     public String friendTodos(
             @RequestParam(required = false) Long userId,
@@ -139,7 +149,7 @@ public class TodoViewController {
         model.addAttribute("friend", friend);
         model.addAttribute("todos", todos);
         model.addAttribute("year", year);
-        return "todos/friend-todos-year";
+        return "todos/friend-todos";
     }
 
 
